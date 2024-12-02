@@ -1,0 +1,70 @@
+class ContactBook:
+    def __init__(self):
+        # Dictionary to store contacts (name: {phone, email})
+        self.contacts = {}
+
+    def add_contact(self, name, phone, email):
+        """Add a new contact to the contact book."""
+        self.contacts[name] = {'phone': phone, 'email': email}
+        print(f"Contact for {name} added successfully!")
+
+    def view_contacts(self):
+        """View all contacts."""
+        if not self.contacts:
+            print("No contacts available.")
+            return
+        print("Contacts:")
+        for name, details in self.contacts.items():
+            print(f"Name: {name}, Phone: {details['phone']}, Email: {details['email']}")
+
+    def search_contact(self, name):
+        """Search for a contact by name."""
+        if name in self.contacts:
+            details = self.contacts[name]
+            print(f"Found contact: Name: {name}, Phone: {details['phone']}, Email: {details['email']}")
+        else:
+            print(f"No contact found with the name {name}.")
+
+    def delete_contact(self, name):
+        """Delete a contact by name."""
+        if name in self.contacts:
+            del self.contacts[name]
+            print(f"Contact for {name} deleted successfully.")
+        else:
+            print(f"No contact found with the name {name}.")
+
+    def menu(self):
+        """Display menu for user interaction."""
+        while True:
+            print("\nContact Book Menu:")
+            print("1. Add Contact")
+            print("2. View Contacts")
+            print("3. Search Contact")
+            print("4. Delete Contact")
+            print("5. Exit")
+
+            choice = input("Enter your choice: ")
+
+            if choice == '1':
+                name = input("Enter name: ")
+                phone = input("Enter phone number: ")
+                email = input("Enter email: ")
+                self.add_contact(name, phone, email)
+            elif choice == '2':
+                self.view_contacts()
+            elif choice == '3':
+                name = input("Enter name to search: ")
+                self.search_contact(name)
+            elif choice == '4':
+                name = input("Enter name to delete: ")
+                self.delete_contact(name)
+            elif choice == '5':
+                print("Exiting the Contact Book.")
+                break
+            else:
+                print("Invalid choice. Please try again.")
+
+
+# Instantiate the contact book and run the menu
+contact_book = ContactBook()
+contact_book.menu()
