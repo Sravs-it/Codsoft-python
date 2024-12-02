@@ -63,8 +63,6 @@ class ContactBook:
                 break
             else:
                 print("Invalid choice. Please try again.")
-
-
 # Instantiate the contact book and run the menu
 contact_book = ContactBook()
 contact_book.menu()
