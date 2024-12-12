@@ -1,42 +1,147 @@
+import tkinter as tk
 import random
+
 # Function to get the computer's choice
 def computer_choice():
-    choices = ['rock', 'paper', 'scissors']
+    choices = ['rock', 'paper', 'scissor']
     return random.choice(choices)
+
+# Determine the winner based on the rules
 def determine_winner(user, computer):
+    winning_combinations = {
+        'rock': ['scissor'],
+        'paper': ['rock'],
+        'scissor': ['paper']
+    }
+    
     if user == computer:
         return "It's a tie!"
-    elif (user == 'rock' and computer == 'scissors') or \
-         (user == 'scissors' and computer == 'paper') or \
-         (user == 'paper' and computer == 'rock'):
+    elif computer in winning_combinations[user]:
         return "You win!"
     else:
         return "You lose!"
-def play_game():
+
+# Update the result and scores with animation
+def update_game(choice):
+    global user_score, computer_score, round_number
+
+    user_choice = choice
+    comp_choice = computer_choice()
+
+    result = determine_winner(user_choice, comp_choice)
+
+    if result == "You win!":
+        user_score += 1
+    elif result == "You lose!":
+        computer_score += 1
+
+    animate_result(result)  # Animate result
+    animate_score()  # Animate score
+
+    result_label.config(text=f"Result: {result}")
+    score_label.config(text=f"Your Score: {user_score} | Computer Score: {computer_score}")
+    update_history(round_number, user_choice, comp_choice, result)
+    round_number += 1
+
+# Animate the result with a fade-in effect
+def animate_result(result):
+    result_label.config(text="")  # Clear previous result
+    window.after(500, lambda: result_label.config(text=result))  # Set new result after delay
+
+# Animate score updates with a smooth transition
+def animate_score():
+    current_score = score_label.cget("text")
+    score_label.config(text="Updating...")  # Temporary text while updating score
+    window.after(1000, lambda: score_label.config(text=current_score))  # Delay to simulate smooth transition
+
+# Update game history in the text box
+def update_history(round_number, user_choice, comp_choice, result):
+    history_text.insert(tk.END, f"\nRound {round_number}: You chose {emoji_choice(user_choice)}, Computer chose {emoji_choice(comp_choice)} - {result}\n")
+    history_text.yview(tk.END)  # Scroll to the latest entry
+
+# Return emoji for each choice
+def emoji_choice(choice):
+    emojis = {
+        'rock': '✊',
+        'paper': '📄',
+        'scissor': '✂️'
+    }
+    return emojis.get(choice, choice)
+
+# Reset the game to initial state
+def reset_game():
+    global user_score, computer_score, round_number
     user_score = 0
     computer_score = 0
-    while True:
-        print("\nWelcome to Rock, Paper, Scissors!")
-        print("Options: rock, paper, or scissors")
-        # User input
-        user_choice = input("Enter your choice (rock/paper/scissors): ").lower()
-        
-        if user_choice not in ['rock', 'paper', 'scissors']:
-            print("Invalid choice! Please select either rock, paper, or scissors.")
-            continue
-        # Computer makes a choice
-        comp_choice = computer_choice()
-        print(f"Computer chose: {comp_choice}")
-        result = determine_winner(user_choice, comp_choice)
-        print(result)
-        if result == "You win!":
-            user_score += 1
-        elif result == "You lose!":
-            computer_score += 1
-        # Display scores
-        print(f"Your Score: {user_score} | Computer Score: {computer_score}")
-        play_again = input("\nDo you want to play again? (yes/no): ").lower()
-        if play_again != 'yes':
-            print("Thanks for playing!")
-            break
-play_game()
+    round_number = 1
+    result_label.config(text="Result: ")
+    score_label.config(text=f"Your Score: {user_score} | Computer Score: {computer_score}")
+    history_text.delete(1.0, tk.END)
+
+# Function to create a rounded button with hover effect
+def rounded_button(master, text, command, bg_color, hover_color):
+    button = tk.Button(master, text=text, command=command, bg=bg_color, font=("Arial", 14, "bold"), relief="flat", bd=0,
+                       width=15, height=2, highlightbackground=bg_color, highlightthickness=0)
+    button.pack(pady=10)
+
+    # Hover effect
+    def on_enter(event):
+        button.config(bg=hover_color)
+    
+    def on_leave(event):
+        button.config(bg=bg_color)
+    
+    button.bind("<Enter>", on_enter)
+    button.bind("<Leave>", on_leave)
+
+    return button
+
+# Initialize the main window
+window = tk.Tk()
+window.title("Rock, Paper, Scissor Game")
+window.geometry("500x600")
+window.config(bg="#f0f0f0")
+
+# Global variables
+user_score = 0
+computer_score = 0
+round_number = 1
+
+# Instructions label
+instructions_label = tk.Label(window, text="Choose Rock, Paper, or Scissor!", font=("Arial", 18, "bold"), bg="#f0f0f0", fg="#333333")
+instructions_label.pack(pady=20)
+
+# Create rounded buttons with hover effect
+rock_button = rounded_button(window, "Rock ✊", lambda: update_game('rock'), "#f28c28", "#ff9a3d")
+paper_button = rounded_button(window, "Paper 📄", lambda: update_game('paper'), "#6c9bcf", "#8ab3db")
+scissor_button = rounded_button(window, "Scissor ✂️", lambda: update_game('scissor'), "#b8b8b8", "#d1d1d1")
+
+# Result label with background color
+result_label = tk.Label(window, text="Result: ", font=("Arial", 16, "bold"), bg="#f0f0f0", fg="#333333")
+result_label.pack(pady=20)
+
+# Score label with background color
+score_label = tk.Label(window, text=f"Your Score: {user_score} | Computer Score: {computer_score}", font=("Arial", 16, "bold"), bg="#f0f0f0", fg="#333333")
+score_label.pack()
+
+# Game history label
+history_label = tk.Label(window, text="Game History:", font=("Arial", 16, "bold"), bg="#f0f0f0", fg="#333333")
+history_label.pack(pady=10)
+
+# Create a scrollable text box for game history
+history_frame = tk.Frame(window, bg="#f0f0f0")
+history_frame.pack(pady=10)
+
+history_text = tk.Text(history_frame, height=10, width=50, font=("Arial", 12), bg="#f0f0f0", wrap=tk.WORD, bd=2, relief="flat", highlightthickness=0)
+history_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+scrollbar = tk.Scrollbar(history_frame, command=history_text.yview)
+scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+history_text.config(yscrollcommand=scrollbar.set)
+
+# Reset button with edges
+reset_button = tk.Button(window, text="Start New Game", width=20, height=2, command=reset_game, bg="#d6d6d6", font=("Arial", 14, "bold"), relief="raised", bd=4, padx=10, pady=10, highlightbackground="#d6d6d6", highlightthickness=0)
+reset_button.pack(pady=20)
+
+# Start the Tkinter event loop
+window.mainloop()
